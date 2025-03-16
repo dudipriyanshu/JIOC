@@ -37,6 +37,7 @@
             transition: all 0.3s ease;
             width: 100%;
             font-size: 16px;
+            margin-top: 10px;
         }
         button:hover { background: linear-gradient(45deg, #ff6600, #ff3300); transform: scale(1.05); }
         .error { color: red; font-size: 14px; margin-top: 5px; }
@@ -66,6 +67,11 @@
 
         <p>Or scan the QR code below:</p>
         <img src="upi-qr (2).png" alt="UPI QR Code" class="qr-code">
+
+        <p>Or click below to pay directly via UPI:</p>
+        <a href="upi://pay?pa=om.dixit8@okhdfcbank&pn=Om&am=7500&cu=INR" class="upi-link">
+            <button>🔗 Pay ₹7500 via UPI</button>
+        </a>
 
         <p>After making the payment, enter your Transaction ID below:</p>
         <label for="upi-transaction">UPI Transaction ID</label>
