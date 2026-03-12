@@ -6,56 +6,73 @@
     <title>Payment - Sports Event</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Arial", sans-serif; }
-        body { background: linear-gradient(135deg, #000, #111); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
+        body { background: linear-gradient(135deg, #000, #111); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         .container {
             background: rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0px 3px 10px rgba(255, 165, 0, 0.3);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 15px rgba(255, 165, 0, 0.3);
             text-align: center;
-            width: 90%;
-            max-width: 450px;
-            transition: 0.3s ease-in-out;
+            width: 100%;
+            max-width: 480px;
         }
-        .container:hover { box-shadow: 0px 5px 15px rgba(255, 165, 0, 0.5); }
         h1 { font-size: 24px; color: #ffcc33; margin-bottom: 20px; }
-        .button-container { margin-top: 20px; }
-        .payment-button {
+        .qr-code { width: 220px; margin: 0 auto 20px; border-radius: 10px; border: 4px solid #fff; }
+        label { display: block; text-align: left; color: #ffcc33; font-weight: bold; margin-bottom: 8px; margin-top: 15px; }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+        }
+        .submit-button {
             background: linear-gradient(45deg, #ff9900, #ff6600);
             color: black;
             font-weight: bold;
-            cursor: pointer;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 5px;
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            cursor: pointer;
             width: 100%;
-            font-size: 16px;
-            margin-top: 10px;
+            font-size: 18px;
+            margin-top: 25px;
+            transition: 0.3s;
         }
-        .payment-button:hover { background: linear-gradient(45deg, #ff6600, #ff3300); transform: scale(1.05); }
+        .submit-button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 165, 0, 0.4); }
+        .submit-button:disabled { background: #666; cursor: not-allowed; }
+        #responseMessage { margin-top: 15px; font-weight: bold; }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>💳 Select Payment Method</h1>
-        <div class="button-container">
-            <button id="payOnlineBtn" class="payment-button">Pay Online</button>
-            <button id="payOfflineBtn" class="payment-button">Pay Offline</button>
-        </div>
+        <h1>💳 Scan & Pay</h1>
+        <p style="color: #bbb; margin-bottom: 15px;">Scan the QR code below to complete your payment of ₹7500.</p>
+        
+        <img src="upi-qr (2).png" alt="UPI QR Code" class="qr-code">
+        
+        <form id="paymentForm">
+            <label>UPI Transaction ID</label>
+            <input type="text" id="transaction_id" placeholder="Enter 12-digit Transaction ID" required>
+            
+            <label>Upload Payment Screenshot</label>
+            <input type="file" id="screenshot" accept="image/*" required>
+            
+            <button type="submit" id="submitBtn" class="submit-button">Submit Registration</button>
+        </form>
+        
         <p id="responseMessage"></p>
     </div>
     
     <script>
-        document.getElementById("payOnlineBtn").addEventListener("click", function () {
-            submitPayment("Online", true);
-        });
-
-        document.getElementById("payOfflineBtn").addEventListener("click", function () {
-            submitPayment("Offline", false);
-        });
-
-        function submitPayment(paymentMethod, isOnline) {
+        document.getElementById("paymentForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            
+            var submitBtn = document.getElementById("submitBtn");
             var responseMessage = document.getElementById("responseMessage");
             var storedData = JSON.parse(sessionStorage.getItem("registrationData"));
             
@@ -65,34 +82,54 @@
                 return;
             }
 
-            // Add payment method
-            storedData.payment_method = paymentMethod;
+            var fileInput = document.getElementById("screenshot");
+            var file = fileInput.files[0];
+            var transactionId = document.getElementById("transaction_id").value;
 
-            var formData = new FormData();
-            for (var key in storedData) {
-                formData.append(key, storedData[key]);
+            if (!file) {
+                alert("Please upload the payment screenshot.");
+                return;
             }
 
-            fetch("https://script.google.com/macros/s/AKfycbz5yVG6y7w_vZA6XwqGVZ6kNrTfnte05qodnE81zWJWAMbtZf5ZJJeSlXHl9tI7QpZBLA/exec", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                if (isOnline) {
-                    // Redirect to Razorpay Payment Page
-                    window.location.href = "https://pages.razorpay.com/pl_QD0JzcQWayKVeJ/view";
-                } else {
-                    // Offline Payment Success Message
-                    responseMessage.innerHTML = "<span class='success'>✅ Payment Submitted Successfully! Redirecting...</span>";
-                    setTimeout(() => { window.location.href = "guidelines.html"; }, 3);
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Processing...";
+            responseMessage.innerHTML = "Sending data, please wait...";
+
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                storedData.screenshot = event.target.result;
+                storedData.screenshotName = file.name;
+                storedData.transaction_id = transactionId;
+                storedData.payment_method = "Online (QR)";
+
+                storedData.transaction_id = transactionId;
+                storedData.payment_method = "Online (QR)";
+
+                // Reverting to FormData natively supported by Apps Script parameters
+                var formData = new FormData();
+                for (var key in storedData) {
+                    formData.append(key, storedData[key]);
                 }
-                sessionStorage.removeItem("registrationData");
-            })
-            .catch(error => {
-                responseMessage.innerHTML = "<span class='error'>❌ Error submitting payment. Please try again.</span>";
-            });
-        }
+
+                fetch("https://script.google.com/macros/s/AKfycbwmjKxd7i90RgopR6V4NrVl1kdWvKTgdENwmxQRvwhfmbNPfdJJBAjFVyeRWpoze5UNWQ/exec", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    responseMessage.innerHTML = "<span class='success'>✅ Registration Successful! Redirecting...</span>";
+                    sessionStorage.removeItem("registrationData");
+                    setTimeout(() => { window.location.href = "guidelines.html"; }, 1500);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    responseMessage.innerHTML = "<span class='error'>❌ Error submitting details. Please try again.</span>";
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Submit Registration";
+                });
+            };
+            reader.readAsDataURL(file);
+        });
     </script>
 </body>
 </html>

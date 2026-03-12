@@ -69,7 +69,27 @@
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
             </select>
-            <label>Parent/Guardian Name</label> <input type="text" id="parent" required>
+            <label>Pickup Location</label>
+            <select id="pickup_location" required>
+                <option value="">Select Pickup Location</option>
+                <option value="Samod Puliya">Samod Puliya</option>
+                <option value="Morija Puliya">Morija Puliya</option>
+                <option value="Bhojlava Cut">Bhojlava Cut</option>
+                <option value="Piyush College">Piyush College</option>
+                <option value="Radhaswami Bagh Cut">Radhaswami Bagh Cut</option>
+                <option value="Barala Hospital">Barala Hospital</option>
+                <option value="CM Chopra">CM Chopra</option>
+                <option value="Magadh Nagar Cut">Magadh Nagar Cut</option>
+                <option value="Ashok Vihar">Ashok Vihar</option>
+                <option value="Thana Mod">Thana Mod</option>
+                <option value="MB Sweets">MB Sweets</option>
+                <option value="Bus Stand">Bus Stand</option>
+                <option value="Banda">Banda</option>
+                <option value="Hadota Puliya">Hadota Puliya</option>
+                <option value="Neemdi">Neemdi</option>
+                <option value="Morija Road (Morija Puliya)">Morija Road (Morija Puliya)</option>
+                <option value="Railway Station">Railway Station</option>
+            </select>
             <label>Contact Number</label> <input type="tel" id="phone" required>
             <label>Email Address</label> <input type="email" id="email" required>
             <label>Residential Address</label> <input type="text" id="address" required>
@@ -85,10 +105,10 @@
                 name: document.getElementById("name").value,
                 dob: document.getElementById("dob").value,
                 gender: document.getElementById("gender").value,
-                parent: document.getElementById("parent").value,
                 phone: document.getElementById("phone").value,
                 email: document.getElementById("email").value,
                 address: document.getElementById("address").value,
+                pickup_location: document.getElementById("pickup_location").value,
                 sport: document.getElementById("sport").value
             };
 
